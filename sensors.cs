@@ -1,16 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.Collections;
-using System.Linq;
-using System.Text;
 
 namespace Interface1
 {
-    class Sensor
+//------------------------------------------------------------------------------------------
+// Прибор
+//------------------------------------------------------------------------------------------
+
+    class Sensor : IComparer
     {
         public string Position;
         public string Model;
-        public enum Eparametr{Прочее, Давление, Температура, Уровень, Расход};
+        public enum Eparametr{Прочее, Давление, Температура, Уровень, Расход, Анализ};
         public Eparametr Parametr;
         public string Passport
         {
@@ -40,7 +41,16 @@ namespace Interface1
         {
             return  "Позиция: " + Position + ", Модель: " + Model + ", Параметр: " + Parametr.ToString();
         }
+        int IComparer.Compare(object x, object y){
+            Sensor s1=(Sensor)x;
+            Sensor s2=(Sensor)y;
+            Console.WriteLine(s1.Position.CompareTo(s2.Position));
+            return s1.Position.CompareTo(s2.Position);
+        }
     }
+//------------------------------------------------------------------------------------------
+// Приборы
+//------------------------------------------------------------------------------------------
     class Sensors : IEnumerable
     {
         private Sensor[] SensorArray;
@@ -53,8 +63,8 @@ namespace Interface1
         public Sensors()
         {
             SensorArrayIndex = 0;
-            //NumeratorIndex = -1;
             SensorArray = new Sensor[ArraySizeStep];
+            for(int i=0;i<SensorArray.Length;i++)SensorArray[i]=new Sensor("PT-01");        
         }
         public void Add(Sensor sensor)
         {
@@ -63,6 +73,14 @@ namespace Interface1
             if (SensorArray.Length == SensorArrayIndex)
             {
                 //
+            }
+        }
+        public void SortByPosition(){
+            Array.Sort(SensorArray);
+        }
+        public void PrintDebug(){
+            for (int i=0;i<SensorArray.Length;i++){
+                Console.WriteLine(i.ToString() + ": " + SensorArray[i].GetType().ToString());
             }
         }
         public IEnumerator GetEnumerator()
@@ -79,18 +97,36 @@ namespace Interface1
     {
         static void Main(string[] args)
         {
-            Sensors sn = new Sensors();
+            Sensor[] sensors=new Sensor[3];
+            sensors[0]=new Sensor("PT-1201", "Метран-150", Sensor.Eparametr.Давление);
+            sensors[1]=new Sensor("TT-1605", "Wika", Sensor.Eparametr.Температура);
+            sensors[2]=new Sensor("AT-1605", "ДАК-М", Sensor.Eparametr.Анализ);
+            //Array.Sort(sensors);
+            
+            foreach(Sensor s in sensors){
+                Console.WriteLine(s.Passport);
+            }
+
+
+           /* Sensors sn = new Sensors();
             sn.Add(new Sensor("PT-1201", "Метран-150", Sensor.Eparametr.Давление));
             sn.Add(new Sensor("TT-1605", "Wika", Sensor.Eparametr.Температура));
-            Console.WriteLine(sn.Count);
+            sn.Add(new Sensor("AT-1605", "ДАК-М", Sensor.Eparametr.Анализ));
+            //Console.WriteLine(sn.Count);
+            sn.PrintDebug();
+            sn.SortByPosition();
             foreach (Sensor s in sn)
             {
                 Console.WriteLine(s.Passport);
             }
 
-
-            Console.ReadKey();
-
+            /*
+            Sensor s1=new Sensor("PT-9901");
+            Sensor s2=new Sensor("PT-9901");
+            if (s1>s2) {Console.WriteLine("Равны");}*/
+            
+            //Console.ReadKey();
+            
         }
     }
 }
