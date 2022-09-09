@@ -7,12 +7,17 @@ namespace Interface1
 // Прибор
 //------------------------------------------------------------------------------------------
 
-    class Sensor : IComparer
+    class Sensor : IComparable
     {
         public string Position;
         public string Model;
         public enum Eparametr{Прочее, Давление, Температура, Уровень, Расход, Анализ};
         public Eparametr Parametr;
+        int IComparable.CompareTo(object obj){
+            if (obj==null)return 1;
+            Sensor s1=(Sensor)obj;
+            return Position.CompareTo(s1.Position);
+        }
         public string Passport
         {
             get{
@@ -41,12 +46,7 @@ namespace Interface1
         {
             return  "Позиция: " + Position + ", Модель: " + Model + ", Параметр: " + Parametr.ToString();
         }
-        int IComparer.Compare(object x, object y){
-            Sensor s1=(Sensor)x;
-            Sensor s2=(Sensor)y;
-            Console.WriteLine(s1.Position.CompareTo(s2.Position));
-            return s1.Position.CompareTo(s2.Position);
-        }
+
     }
 //------------------------------------------------------------------------------------------
 // Приборы
@@ -56,24 +56,26 @@ namespace Interface1
         private Sensor[] SensorArray;
         private int SensorArrayIndex;
         private const int ArraySizeStep = 10;
-        //private int NumeratorIndex;
         public int Count{
             get { return SensorArrayIndex; }
         }
         public Sensors()
         {
             SensorArrayIndex = 0;
-            SensorArray = new Sensor[ArraySizeStep];
-            for(int i=0;i<SensorArray.Length;i++)SensorArray[i]=new Sensor("PT-01");        
+
         }
         public void Add(Sensor sensor)
         {
-            SensorArray[SensorArrayIndex] = sensor;
             SensorArrayIndex++;
-            if (SensorArray.Length == SensorArrayIndex)
-            {
-                //
-            }
+            Sensor[] tmpArray=new Sensor[SensorArrayIndex];
+            if (SensorArrayIndex!=1){SensorArray.CopyTo(tmpArray,0);}
+            SensorArray=tmpArray;
+            SensorArray[SensorArrayIndex-1]=sensor;
+            
+        }
+        public Sensor this[int index]
+        {
+            get {return SensorArray[index];}
         }
         public void SortByPosition(){
             Array.Sort(SensorArray);
@@ -97,36 +99,35 @@ namespace Interface1
     {
         static void Main(string[] args)
         {
-            Sensor[] sensors=new Sensor[3];
+            /*
+            Sensor[] sensors=new Sensor[4];
             sensors[0]=new Sensor("PT-1201", "Метран-150", Sensor.Eparametr.Давление);
             sensors[1]=new Sensor("TT-1605", "Wika", Sensor.Eparametr.Температура);
             sensors[2]=new Sensor("AT-1605", "ДАК-М", Sensor.Eparametr.Анализ);
-            //Array.Sort(sensors);
-            
+            sensors[3]=new Sensor("FT-1801", "Micro Motion", Sensor.Eparametr.Расход);
+            Array.Sort(sensors);
+
             foreach(Sensor s in sensors){
                 Console.WriteLine(s.Passport);
             }
+            */
 
-
-           /* Sensors sn = new Sensors();
+            Sensors sn = new Sensors();
             sn.Add(new Sensor("PT-1201", "Метран-150", Sensor.Eparametr.Давление));
             sn.Add(new Sensor("TT-1605", "Wika", Sensor.Eparametr.Температура));
             sn.Add(new Sensor("AT-1605", "ДАК-М", Sensor.Eparametr.Анализ));
+            sn.Add(new Sensor("FT-1801", "Micro Motion", Sensor.Eparametr.Расход));
+            sn.Add(new Sensor("FT-1802", "Micro Motion", Sensor.Eparametr.Расход));
             //Console.WriteLine(sn.Count);
-            sn.PrintDebug();
+            //sn.PrintDebug();
             sn.SortByPosition();
             foreach (Sensor s in sn)
             {
                 Console.WriteLine(s.Passport);
             }
 
-            /*
-            Sensor s1=new Sensor("PT-9901");
-            Sensor s2=new Sensor("PT-9901");
-            if (s1>s2) {Console.WriteLine("Равны");}*/
-            
-            //Console.ReadKey();
-            
+            //Console.WriteLine(sn[0].Passport);
+
         }
     }
 }
